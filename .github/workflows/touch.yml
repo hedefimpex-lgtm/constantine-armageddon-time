@@ -1,0 +1,23 @@
+name: Dokunmatik oyun testi
+on:
+  push:
+    paths: ['mobile/**', 'server/**', 'tests/touch.cjs', '.github/workflows/touch.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  touch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tarayıcı test aracını hazırla
+        run: npm install --prefix "$RUNNER_TEMP/touch" --no-audit --no-fund playwright-core@1.56.1
+      - name: Tek oyunculu ve iki istemcili görevi oyna
+        run: |
+          mkdir -p build/preview
+          CHROME_BIN="$(command -v google-chrome)" NODE_PATH="$RUNNER_TEMP/touch/node_modules" PREVIEW_DIR=build/preview node tests/touch.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mobile-preview
+          path: build/preview
