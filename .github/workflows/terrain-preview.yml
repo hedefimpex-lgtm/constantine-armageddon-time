@@ -1,0 +1,62 @@
+name: Orijinal zone00 mobil önizlemesi
+on:
+  workflow_dispatch:
+    inputs:
+      recipient_certificate:
+        description: Alıcının Base64 DER biçimindeki genel X.509 sertifikası
+        required: true
+        type: string
+  push:
+    paths: ['.github/workflows/terrain-preview.yml', 'analysis/viewer/zone00.html', 'scripts/build-zone-preview.sh', 'scripts/write-zone-page.py']
+permissions:
+  contents: read
+jobs:
+  preview:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Preview-Recipient:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Alıcının genel sertifikasını doğrula
+        env:
+          RECIPIENT: ${{ inputs.recipient_certificate }}
+        run: |
+          python3 - <<'PY'
+          import base64,os,pathlib,subprocess
+          cert=os.environ.get('RECIPIENT')
+          if not cert:
+              trailers=subprocess.check_output(['git','show','-s','--format=%(trailers:key=Preview-Recipient,valueonly)', 'HEAD'],text=True)
+              cert=trailers.strip()
+          path=pathlib.Path(os.environ['RUNNER_TEMP'])/'recipient.der'
+          path.write_bytes(base64.b64decode(cert,validate=True))
+          PY
+          openssl x509 -inform DER -in "$RUNNER_TEMP/recipient.der" -out "$RUNNER_TEMP/recipient.pem"
+          openssl x509 -checkend 0 -in "$RUNNER_TEMP/recipient.pem" -noout
+      - name: Kurulumu aç ve arazi dosyalarını oku
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install innoextract
+          installer="$RUNNER_TEMP/istanbulkur6_0.exe"
+          python3 scripts/fetch-installer.py "$installer"
+          echo "6fcfaaf85872fd7b88ca9eecef3d865e595ebc48a879fe9a6369812e440411c8  $installer" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/zone-source"
+          innoextract --silent --extract --include app/base/zone00.bin --include app/base/zone00_height.bin --output-dir "$RUNNER_TEMP/zone-source" "$installer"
+      - name: Android ve tarayıcı önizlemelerini derle
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+          bash scripts/build-zone-preview.sh "$RUNNER_TEMP/zone-source/app/base" "$RUNNER_TEMP/preview"
+          npm install --prefix "$RUNNER_TEMP/webtest" --no-audit --no-fund playwright-core@1.56.1
+          NODE_PATH="$RUNNER_TEMP/webtest/node_modules" CHROME_BIN="$(command -v google-chrome)" node tests/zone-preview.cjs "$RUNNER_TEMP/preview"
+      - name: Test paketini alıcı için şifrele
+        run: |
+          cd "$RUNNER_TEMP/preview"
+          sha256sum constantine-zone00-test.apk zone00.html zone00-preview.png > SHA256SUMS
+          zip -q "$RUNNER_TEMP/preview.zip" constantine-zone00-test.apk zone00.html zone00-preview.png SHA256SUMS
+          mkdir -p "$GITHUB_WORKSPACE/build"
+          openssl cms -encrypt -binary -aes-256-cbc -outform DER -in "$RUNNER_TEMP/preview.zip" -out "$GITHUB_WORKSPACE/build/preview.cms" "$RUNNER_TEMP/recipient.pem"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: encrypted-zone00-preview
+          path: build/preview.cms
+          retention-days: 1
+          if-no-files-found: error
