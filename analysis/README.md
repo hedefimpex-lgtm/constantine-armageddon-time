@@ -23,6 +23,8 @@ Resmî tek parça kurulumun tamamı indirildi. SHA-256 değeri `6fcfaaf85872fd7b
 
 Bu bulgular grafik, girdi, ses ve ağ bağımlılıklarını gösterir. Paket biçiminin, oturum açma adımlarının ve oyun sunucusunun mesajlarının belirlenmesi ayrı davranış incelemesi gerektirir. Mobil prototip kendi çizimlerini ve kendi oturum API’sini kullanır.
 
+[Harita ve karakter dosyalarının incelemesi](harita-ve-karakter.md)
+
 ## Yerel dosyayı karşılaştırma
 
 Python 3.11 veya üstü ve REA 6.8.0 bulunan makinede yerel kurulum dosyasına şu komutu uygulayın.

@@ -1,0 +1,138 @@
+{
+  "installer_sha256": "6fcfaaf85872fd7b88ca9eecef3d865e595ebc48a879fe9a6369812e440411c8",
+  "zone00": {
+    "mask_sha256": "0df71c6c7891704bf838957d10f57332d4ad3f5a8afb865f11a5cc14fda95faa",
+    "height_sha256": "7a22bc09b0ccca02c7fc75cf182e8cfdee8b777492e416667950c47f016ab34d",
+    "candidate_shape": [
+      2048,
+      2048
+    ],
+    "height_encoding": "float32-le",
+    "nonfinite": 0,
+    "stride_statistics": {
+      "1": {
+        "mean": 0.8389678,
+        "median": 0.0231934
+      },
+      "1023": {
+        "mean": 30.7631374,
+        "median": 19.7507324
+      },
+      "1024": {
+        "mean": 30.7424019,
+        "median": 19.7412109
+      },
+      "1025": {
+        "mean": 30.735089,
+        "median": 19.7470703
+      },
+      "2047": {
+        "mean": 1.1618117,
+        "median": 0.0964355
+      },
+      "2048": {
+        "mean": 0.9019637,
+        "median": 0.0688477
+      },
+      "2049": {
+        "mean": 1.1156914,
+        "median": 0.0437012
+      },
+      "4095": {
+        "mean": 1.8239703,
+        "median": 0.1713867
+      },
+      "4096": {
+        "mean": 1.7076912,
+        "median": 0.1413574
+      },
+      "4097": {
+        "mean": 1.8662793,
+        "median": 0.1166992
+      },
+      "38111": {
+        "mean": 30.0955793,
+        "median": 19.8050537
+      }
+    },
+    "mask_height_support_mismatches": 0,
+    "mask_counts": {
+      "0": 3422522,
+      "255": 771782
+    },
+    "vertices": 2996,
+    "triangles": 3314,
+    "step": 16
+  },
+  "objects": {
+    "index_end": 202986,
+    "entries": 1482,
+    "folders": {
+      "objects/arsenal": 207,
+      "objects/items": 2,
+      "objects/loc": 111,
+      "objects/maps": 30,
+      "objects/npc": 229,
+      "objects/pc/e_accessory": 70,
+      "objects/pc/e_buy": 70,
+      "objects/pc/e_efe": 64,
+      "objects/pc/e_generic": 38,
+      "objects/pc/e_hair": 85,
+      "objects/pc/e_head": 10,
+      "objects/pc/e_sif": 68,
+      "objects/pc/k_accessory": 48,
+      "objects/pc/k_buy": 70,
+      "objects/pc/k_efe": 64,
+      "objects/pc/k_generic": 38,
+      "objects/pc/k_hair": 200,
+      "objects/pc/k_head": 10,
+      "objects/pc/k_sif": 68
+    },
+    "selected": [
+      {
+        "path": "objects/npc/AGAH.ADF",
+        "offset": 438666404,
+        "length": 316402,
+        "sha256": "f4332144a36c0916a730ed72e7dc0c39ba839d19cb3102fad2b496c566446a0a",
+        "root_tag": true,
+        "resolved_texture_names": []
+      },
+      {
+        "path": "objects/npc/AGOP.ADF",
+        "offset": 438982806,
+        "length": 324818,
+        "sha256": "2452da6b318723495de5efce38cadecec14371a49fc71f730f35e40cfd0c0a04",
+        "root_tag": true,
+        "resolved_texture_names": []
+      },
+      {
+        "path": "objects/npc/BALIKCI.ADF",
+        "offset": 439942553,
+        "length": 257680,
+        "sha256": "ace905c69ae77c06741605821a359e47dc8fd354d30ee94d544cccd8709eb162",
+        "root_tag": true,
+        "resolved_texture_names": []
+      },
+      {
+        "path": "objects/npc/AKTAR.ADF",
+        "offset": 439307624,
+        "length": 306819,
+        "sha256": "34d7345f0cc065e188d0268fedc896994e7f6aceebc67e9921816cc1e2ab4bef",
+        "root_tag": true,
+        "resolved_texture_names": []
+      },
+      {
+        "path": "objects/items/ID_ITEM_BOX.ADF",
+        "offset": 7337495,
+        "length": 16837,
+        "sha256": "cedb6105f7f3f9a7d546b8f789ad2f0eebba8dffcc6c9a38e31a5736e4435eb1",
+        "root_tag": true,
+        "resolved_texture_names": []
+      }
+    ]
+  },
+  "textures_1": {
+    "entries": 1484,
+    "index_error": null
+  }
+}
