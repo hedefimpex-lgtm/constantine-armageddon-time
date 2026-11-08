@@ -2,7 +2,7 @@ name: Harita ve karakter incelemesi
 on:
   workflow_dispatch:
   push:
-    paths: ['.github/workflows/asset-index.yml', 'scripts/index-assets.py']
+    paths: ['.github/workflows/asset-index.yml', 'scripts/index-assets.py', 'scripts/probe-zone-object.py']
 permissions:
   contents: read
 jobs:
@@ -23,9 +23,11 @@ jobs:
           mkdir -p build/asset-index "$RUNNER_TEMP/ikv"
           innoextract --silent --extract --output-dir "$RUNNER_TEMP/ikv" "$installer"
       - name: Kaynak kayıtlarını ve istemci referanslarını incele
-        run: python3 scripts/index-assets.py "$RUNNER_TEMP/ikv" build/asset-index/assets.json
+        run: |
+          python3 scripts/index-assets.py "$RUNNER_TEMP/ikv" build/asset-index/assets.json
+          python3 scripts/probe-zone-object.py "$RUNNER_TEMP/ikv" build/asset-index/zone-object.json
       - uses: actions/upload-artifact@v4
         with:
           name: ikv-asset-index
-          path: build/asset-index/assets.json
+          path: build/asset-index/*.json
           retention-days: 14
