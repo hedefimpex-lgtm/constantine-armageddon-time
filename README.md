@@ -26,7 +26,21 @@ docker compose up -d --build
 curl -fsS http://127.0.0.1:8787/health
 ```
 
-Sağlık yanıtı `{"ok":true,"version":1}` olmalıdır. Oyun yalnızca sunucunun yerel 8787 portunda dinler. Telefondan bağlanmak için bir alan adını VPS'ye yönlendirin ve mevcut HTTPS ters vekilinizi bu porta bağlayın. Caddy kullanıyorsanız [örnek yapılandırmadaki](deploy/Caddyfile.example) alan adını kendi adınızla değiştirip mevcut yapılandırmanıza ekleyin. Android uygulamasında **Birlikte oyna** bölümüne aynı HTTPS adresini girin.
+Sağlık yanıtı `{"ok":true,"version":1}` olmalıdır. Oyun sunucusu makinenin yerel 8787 portunda dinler.
+
+### Telefondan bağlanma
+
+1. Kullanacağınız alan adının DNS A kaydını VPS’nizin genel IPv4 adresine yönlendirin.
+2. VPS’de zaten bir HTTPS ters vekili çalışıyorsa, bu alan adını `127.0.0.1:8787` adresine bağlayın. [Mevcut Caddy için örnek](deploy/Caddyfile.example).
+3. 80 ve 443 numaralı TCP portları kullanılmıyorsa ve dışarıdan erişilebiliyorsa, depodaki ağ geçidini kullanabilirsiniz. Aşağıdaki örnek alan adını kendinize ait alan adıyla değiştirin.
+
+```sh
+export GAME_DOMAIN=oyun.ornek.com
+docker compose -f compose.yaml -f deploy/https.compose.yaml up -d --build --wait
+curl -fsS "https://$GAME_DOMAIN/health"
+```
+
+HTTPS sağlık denetimi başarılı olduğunda Android uygulamasında **Birlikte oyna** bölümüne aynı `https://` adresini girin. Caddy sertifikaları adlandırılmış Docker birimlerinde saklar.
 
 ## REA incelemesi
 

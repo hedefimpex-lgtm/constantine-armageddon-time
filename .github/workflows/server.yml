@@ -9,13 +9,30 @@ jobs:
   compose:
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    env:
+      GAME_DOMAIN: localhost
+      GAME_HTTP_PORT: 18080
+      GAME_HTTPS_PORT: 18443
+      COMPOSE_FILE: compose.yaml:deploy/https.compose.yaml
     steps:
       - uses: actions/checkout@v4
-      - name: Sunucuyu başlat ve yerel sağlık uç noktasını doğrula
+      - name: Sunucuyu ve TLS ağ geçidini başlat
         run: |
-          docker compose up --build --detach --wait --wait-timeout 90
+          docker compose up --build --detach --wait --wait-timeout 120
           curl --fail --silent http://127.0.0.1:8787/health | jq -e '.ok == true'
-          curl --fail --silent --request POST http://127.0.0.1:8787/api/session | jq -e '.players | length == 1'
+      - name: HTTPS üzerinden istemci ve oyun oturumunu doğrula
+        run: |
+          for attempt in {1..20}; do
+            if docker compose exec -T gateway cat /data/caddy/pki/authorities/local/root.crt > "$RUNNER_TEMP/test-ca.crt" && test -s "$RUNNER_TEMP/test-ca.crt"; then
+              break
+            fi
+            sleep 1
+          done
+          base="https://localhost:$GAME_HTTPS_PORT"
+          tls=(--fail --silent --show-error --cacert "$RUNNER_TEMP/test-ca.crt" --resolve "localhost:$GAME_HTTPS_PORT:127.0.0.1")
+          curl "${tls[@]}" "$base/health" | jq -e '.ok == true'
+          curl "${tls[@]}" "$base/" | grep -q 'Armageddon Time'
+          curl "${tls[@]}" --request POST "$base/api/session" | jq -e '.players | length == 1'
       - name: Test hizmetini kapat
         if: always()
         run: docker compose down
