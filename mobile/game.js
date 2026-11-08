@@ -1,5 +1,9 @@
 "use strict";
 const el=id=>document.getElementById(id);
+function showText(id, text) {
+  const element=el(id);
+  if(element.textContent!==text) element.textContent=text;
+}
 const canvas=el("harbour"), scene=harbourScene(canvas);
 const fresh=()=>({...World.start,target:{...World.start}});
 const state={playing:false,online:false,actor:fresh(),others:[],completed:[]};
@@ -7,7 +11,12 @@ let token="",generation=0,busy=false,nextMove=null,lastPoll=0,lastTime=0,peerCou
 async function request(path,method="GET",payload,credential=token) {
   const headers={}; if(credential)headers.Authorization="Bearer "+credential;
   if(payload)headers["Content-Type"]="application/json";
-  const response=await fetch("/api/"+path,{method,headers,body:payload?JSON.stringify(payload):undefined,cache:"no-store",signal:AbortSignal.timeout(5500)});
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),5500);
+  let response;
+  try {
+    response=await fetch("/api/"+path,{method,headers,body:payload?JSON.stringify(payload):undefined,cache:"no-store",signal:controller.signal});
+  } finally { clearTimeout(timer); }
   if(!response.ok){
     const error=new Error(response.status===401?"Oturum sona erdi.":"Sunucu isteği tamamlanamadı.");
     error.status=response.status; throw error;
@@ -76,11 +85,12 @@ function frame(t){
   if(state.playing){World.advance(state.actor,dt);for(const p of state.others)World.advance(p,dt);
     if(state.online)networkStep(t);
     const near=World.nearest(state.actor,state.completed);
-    el("activate").disabled=!near||(state.online&&busy);
-    el("mode").textContent=state.online?"Çevrim içi · "+peerCount+" oyuncu":"Tek oyuncu";
-    el("feedback").textContent=near?near.name+" rölesi yakında":"Yürümek için zemine dokun";
+    const disabled=!near||(state.online&&busy);
+    if(el("activate").disabled!==disabled) el("activate").disabled=disabled;
+    showText("mode",state.online?"Çevrim içi · "+peerCount+" oyuncu":"Tek oyuncu");
+    showText("feedback",near?near.name+" rölesi yakında":"Yürümek için zemine dokun");
   }
-  el("counter").textContent=state.completed.length+" / "+World.relays.length;
+  showText("counter",state.completed.length+" / "+World.relays.length);
   scene.draw(state,t);requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

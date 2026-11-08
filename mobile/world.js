@@ -26,4 +26,4 @@
   const world = {width, height, start, bounds, relays, destination, advance, nearest, speed};
   if (typeof module !== "undefined" && module.exports) module.exports = world;
   else root.World = world;
-})(globalThis);
+})(typeof window === "undefined" ? global : window);

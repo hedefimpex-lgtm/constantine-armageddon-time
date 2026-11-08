@@ -11,17 +11,22 @@ def adb(*args):
 
 def find_label(text, timeout=50):
     end=time.monotonic()+timeout
+    last_xml=b""
     while time.monotonic()<end:
         try:
             adb("shell","uiautomator","dump","/sdcard/constantine-ui.xml")
-            tree=ET.fromstring(adb("exec-out","cat","/sdcard/constantine-ui.xml"))
+            last_xml=adb("exec-out","cat","/sdcard/constantine-ui.xml")
+            tree=ET.fromstring(last_xml)
             for node in tree.iter("node"):
                 label=" ".join([node.get("text",""),node.get("content-desc","")]).casefold()
-                if text.casefold() in label:
+                if text.casefold() in label and len(label.strip())<80:
                     return tuple(map(int,re.findall(r"\d+",node.get("bounds",""))))
         except (ET.ParseError,subprocess.SubprocessError):
             pass
         time.sleep(1)
+    (out/"device-state.xml").write_bytes(last_xml)
+    (out/"device-failure.png").write_bytes(adb("exec-out","screencap","-p"))
+    (out/"webview.log").write_bytes(adb("logcat","-d","-s","chromium","AndroidRuntime"))
     raise RuntimeError("Android ekranında bulunamadı: "+text)
 
 apk=Path(sys.argv[1]);out=Path(sys.argv[2]);out.mkdir(parents=True,exist_ok=True)
