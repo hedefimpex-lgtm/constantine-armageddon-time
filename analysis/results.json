@@ -1,0 +1,197 @@
+{
+  "helper": {
+    "input": "IKVDownloader.exe",
+    "bytes": 2078104,
+    "sha256": "1cef6e6fc5afef06dcf1de6ae0213aad45fb55a198a42013bf5b558cef000510",
+    "pe_image_sha256": "05c3f0316642f9bdfa0c0556cd71db22e8ba2e9635e04fe034da64d085d339e9",
+    "pe_file_bytes": 2071552,
+    "trailing_bytes": 6552,
+    "rea_version": "6.8.0",
+    "sections": [
+      ".text",
+      ".rdata",
+      ".data",
+      ".tls",
+      ".rsrc",
+      ".reloc"
+    ],
+    "format": "pe32",
+    "architecture": "386",
+    "imported_libraries": [
+      "advapi32.dll",
+      "comctl32.dll",
+      "gdi32.dll",
+      "kernel32.dll",
+      "msvcp90.dll",
+      "msvcr90.dll",
+      "ole32.dll",
+      "oleaut32.dll",
+      "user32.dll",
+      "wldap32.dll",
+      "ws2_32.dll"
+    ],
+    "import_entries": 481,
+    "evidence_id": "ev_9613d257e3effe104c24cbd098ddead31240b0341e5cca20c8ac3ec3ca4c8aa5"
+  },
+  "installer-prefix": {
+    "input": "istanbulkur6_0.exe",
+    "input_scope": "first 8 MiB only",
+    "sample_bytes": 8388608,
+    "sample_sha256": "b57a777198a0f81908b07467d4126ad3cad3639f1bc90d1b9234ee21c2769f23",
+    "pe_image_sha256": "a8fae9ce610d6df766b9e0df9401ffc7a7f22336d062a7a83fd6fd3e435a08cd",
+    "pe_file_bytes": 329728,
+    "rea_version": "6.8.0",
+    "sections": [
+      "CODE",
+      "DATA",
+      "BSS",
+      ".idata",
+      ".tls",
+      ".rdata",
+      ".reloc",
+      ".rsrc"
+    ],
+    "format": "pe32",
+    "architecture": "386",
+    "imported_libraries": [
+      "advapi32.dll",
+      "comctl32.dll",
+      "kernel32.dll",
+      "oleaut32.dll",
+      "user32.dll"
+    ],
+    "import_entries": 96,
+    "evidence_id": "ev_8d4e8d62797b0d440af376de4408d3594cb5837637b3d91168149f3896debbfe"
+  },
+  "installer": {
+    "input": "istanbulkur6_0.exe",
+    "bytes": 1685549760,
+    "sha256": "6fcfaaf85872fd7b88ca9eecef3d865e595ebc48a879fe9a6369812e440411c8",
+    "pe_image_sha256": "a8fae9ce610d6df766b9e0df9401ffc7a7f22336d062a7a83fd6fd3e435a08cd",
+    "pe_file_bytes": 329728,
+    "trailing_bytes": 1685220032,
+    "rea_version": "6.8.0",
+    "sections": [
+      "CODE",
+      "DATA",
+      "BSS",
+      ".idata",
+      ".tls",
+      ".rdata",
+      ".reloc",
+      ".rsrc"
+    ],
+    "format": "pe32",
+    "architecture": "386",
+    "imported_libraries": [
+      "advapi32.dll",
+      "comctl32.dll",
+      "kernel32.dll",
+      "oleaut32.dll",
+      "user32.dll"
+    ],
+    "import_entries": 96,
+    "evidence_id": "ev_b3343f2702e924f718f5cdf0eb414178e29ff238f8602684bcfd9b20a5666bbb"
+  },
+  "payload": {
+    "file_count": 765,
+    "file_types": {
+      ".raw": 371,
+      ".dds": 177,
+      ".ogg": 77,
+      ".bin": 36,
+      ".jpg": 31,
+      ".vsh": 20,
+      ".psh": 18,
+      ".dat": 14,
+      ".xml": 4,
+      ".ttf": 4,
+      "(none)": 3,
+      ".exe": 3,
+      ".dll": 2,
+      ".old": 1,
+      ".adf": 1,
+      ".prefs": 1,
+      ".pdf": 1,
+      ".ico": 1
+    },
+    "executables": [
+      "app/istanbul.exe",
+      "app/launch_helper.exe",
+      "app/launcher.exe"
+    ],
+    "inspected": [
+      {
+        "path": "app/istanbul.exe",
+        "bytes": 1087480,
+        "status": "parsed",
+        "sha256": "b1522be1e6f2dd4fb613e672f567741662557d155f3cc2195033c4ee8369cf08",
+        "architecture": "386",
+        "format": "pe32",
+        "dlls": [
+          "KERNEL32.DLL",
+          "ADVAPI32.dll",
+          "d3d9.dll",
+          "d3dx9_31.dll",
+          "DINPUT8.dll",
+          "DSOUND.dll",
+          "iphlpapi.dll",
+          "ole32.dll",
+          "OLEAUT32.dll",
+          "PSAPI.DLL",
+          "SHELL32.dll",
+          "SHLWAPI.dll",
+          "USER32.dll",
+          "VERSION.dll",
+          "WINMM.dll",
+          "WS2_32.dll"
+        ],
+        "delay_dlls": [],
+        "evidence_id": "ev_bd4defb14f7a8398d56be3666a1786071c28a746f28b7c1350ad854bab53748e"
+      },
+      {
+        "path": "app/launch_helper.exe",
+        "bytes": 111616,
+        "status": "parsed",
+        "sha256": "df082b4536ab552bb6445203a03cc50e7469b48c08ff0a1c462e5f3cc46890b3",
+        "architecture": "386",
+        "format": "pe32",
+        "dlls": [
+          "KERNEL32.dll",
+          "USER32.dll",
+          "SHELL32.dll"
+        ],
+        "delay_dlls": [],
+        "evidence_id": "ev_1fa1a711d0b95c90a4f1cacacca0f50652bf07eee8af6724ee2c2fd920b4bb1a"
+      },
+      {
+        "path": "app/launcher.exe",
+        "bytes": 2259352,
+        "status": "parsed",
+        "sha256": "096a9fa7c3bd701d5b486fee9862786b8c0a4cacbc0656250910364e10890e2e",
+        "architecture": "386",
+        "format": "pe32",
+        "dlls": [
+          "KERNEL32.dll",
+          "USER32.dll",
+          "GDI32.dll",
+          "COMDLG32.dll",
+          "WINSPOOL.DRV",
+          "ADVAPI32.dll",
+          "SHELL32.dll",
+          "COMCTL32.dll",
+          "SHLWAPI.dll",
+          "oledlg.dll",
+          "ole32.dll",
+          "OLEAUT32.dll",
+          "WLDAP32.dll",
+          "WS2_32.dll"
+        ],
+        "delay_dlls": [
+          "OLEACC.dll"
+        ],
+        "evidence_id": "ev_dce4f0b45cd7e5d0bf98fa815d53e605f65ce47b842ff1df105c6f005bfdc3f2"
+      }
+    ]
+  }
+}
