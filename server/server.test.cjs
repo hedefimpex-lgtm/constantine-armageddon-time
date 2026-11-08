@@ -1,0 +1,32 @@
+"use strict";
+const {test} = require("node:test");
+const assert = require("node:assert/strict");
+const {spawn} = require("node:child_process");
+const {once} = require("node:events");
+const world = require("../mobile/world.js");
+test("Hareket hız, sınır ve etkileşim mesafesine uyar",()=>{
+  const a={...world.start,target:world.destination(-100,900)};
+  assert.deepEqual(a.target,{x:world.bounds.left,y:world.bounds.bottom});
+  world.advance(a,0.25);
+  assert.ok(Math.abs(Math.hypot(a.x-world.start.x,a.y-world.start.y)-28.75)<.001);
+  assert.equal(world.nearest(a,[]),undefined);
+  assert.equal(world.nearest(world.relays[0],[]).id,"rihtim");
+  assert.equal(world.nearest(world.relays[0],["rihtim"]),undefined);
+});
+test("İki oyuncu aynı odada görünür, uzaktan röle etkinleştirilemez",async t=>{
+  const proc=spawn(process.execPath,[require.resolve("./server.cjs")],{env:{...process.env,HOST:"127.0.0.1",PORT:"0"}});
+  t.after(()=>proc.kill());
+  const [chunk]=await once(proc.stdout,"data");
+  const port=chunk.toString().match(/port: (\d+)/)[1],base="http://127.0.0.1:"+port;
+  const make=async()=> (await fetch(base+"/api/session",{method:"POST"})).json();
+  const a=await make(),b=await make(),auth={Authorization:"Bearer "+a.token};
+  const state=await (await fetch(base+"/api/state",{headers:auth})).json();
+  assert.equal(state.players.length,2);assert.notEqual(a.self,b.self);
+  assert.equal((await fetch(base+"/api/activate",{method:"POST",headers:auth})).status,409);
+  assert.equal((await fetch(base+"/api/state")).status,401);
+  const move=await (await fetch(base+"/api/move",{method:"POST",headers:auth,body:JSON.stringify({x:8000,y:9999})})).json();
+  assert.deepEqual(move.players.find(p=>p.id===a.self).target,{x:world.bounds.right,y:world.bounds.bottom});
+  assert.equal((await fetch(base+"/api/session",{method:"DELETE",headers:auth})).status,200);
+  assert.equal((await fetch(base+"/api/state",{headers:auth})).status,401);
+  assert.equal((await fetch(base+"/")).status,200);
+});

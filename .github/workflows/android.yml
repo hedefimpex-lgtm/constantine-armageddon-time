@@ -1,0 +1,24 @@
+name: Mobil prototip
+on: [push, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sunucu ve oyun kuralları
+        run: node --test server/server.test.cjs
+      - name: Android SDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Test APK paketini derle
+        run: bash scripts/build-android.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: constantine-android
+          path: build/constantine-android.apk
+          if-no-files-found: error
+          retention-days: 14

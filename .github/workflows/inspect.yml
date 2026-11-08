@@ -1,0 +1,30 @@
+name: REA kurulum incelemesi
+on:
+  workflow_dispatch:
+  push:
+    paths: ['scripts/inspect-installer.py', '.github/workflows/inspect.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: REA 6.8.0
+        run: npm install --prefix "$RUNNER_TEMP/rea" --omit=dev --no-audit --no-fund rea-agents@6.8.0
+      - name: Yayımcının tek parça kurulumunu incele
+        run: |
+          target="$RUNNER_TEMP/istanbulkur6_0.exe"
+          curl --fail --show-error --silent --location --proto '=https' --retry 2 --connect-timeout 15 --max-time 600 \
+            'https://download.istanbuloyun.com/istanbulkur6_0.exe' --output "$target"
+          python3 scripts/inspect-installer.py "$target" build/rea/installer.json --rea "$RUNNER_TEMP/rea/node_modules/.bin/rea"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rea-installer-report
+          path: build/rea/installer.json
+          if-no-files-found: error
+          retention-days: 30

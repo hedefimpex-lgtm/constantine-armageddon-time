@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#15262c"><title>Constantine · Armageddon Time</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<main id="game">
+<canvas id="harbour" aria-label="Oyun haritası. Yürümek için rıhtımda bir noktaya dokun."></canvas>
+<header class="hud" hidden><div><small>KARAKÖY</small><strong>Rıhtım Nöbeti</strong></div><span id="counter">0 / 3</span><button id="menu" aria-label="Ana menüye dön">☰</button></header>
+<div class="playbar" hidden><div class="status"><i></i><span id="mode"></span><span id="feedback" role="status"></span></div><button id="activate" disabled>Röleyi etkinleştir</button></div>
+<section id="cover"><div class="intro">
+<div class="eyebrow"><i></i> KARAKÖY RIHTIMI</div>
+<h1>Constantine<em>Armageddon Time</em></h1>
+<p>Rıhtım karanlıkta. Üç röleye ulaşıp ışıkları yeniden yak.</p>
+<button id="solo" class="primary">Tek başına oyna <span>→</span></button><button id="online" class="secondary">Birlikte oyna</button>
+<form id="connect" hidden><label for="address">Oyun sunucusunun HTTPS adresi</label><input type="url" id="address" placeholder="https://oyun.ornek.com" required><button class="secondary">Sunucuya bağlan</button></form>
+<p id="error" role="status"></p>
+</div></section>
+<section id="won" hidden><div class="intro"><div class="eyebrow"><i></i> GÖREV TAMAMLANDI</div>
+<h2>Rıhtım yeniden aydınlık.</h2><p>Üç röle de devrede.</p><button id="again" class="primary">Ana menüye dön <span>→</span></button></div></section>
+</main><script src="world.js"></script><script src="scene.js"></script><script src="game.js"></script></body></html>
