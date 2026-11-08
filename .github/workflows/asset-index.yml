@@ -1,40 +1,31 @@
-name: Kurulum dosya listesi
+name: Harita ve karakter incelemesi
 on:
   workflow_dispatch:
   push:
-    paths: ['.github/workflows/asset-index.yml']
+    paths: ['.github/workflows/asset-index.yml', 'scripts/index-assets.py']
 permissions:
   contents: read
 jobs:
-  names:
+  index:
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
-      - name: Kurulumun doğrulanmış başlığından dosya adlarını oku
+      - name: Kurulum okuyucusunu hazırla
         run: |
           sudo apt-get -qq update
           sudo apt-get -qq install innoextract
-          mkdir -p build/asset-index
-          python3 - <<'PY'
-          import hashlib, os, pathlib, urllib.request
-          size=1685549760
-          count=8*1024*1024
-          url='https://download.istanbuloyun.com/istanbulkur6_0.exe'
-          req=urllib.request.Request(url,headers={'Range':f'bytes=0-{count-1}', 'Accept-Encoding':'identity'})
-          with urllib.request.urlopen(req,timeout=90) as response:
-              if response.status != 206 or response.headers.get('Content-Range') != f'bytes 0-{count-1}/{size}':
-                  raise ValueError('Beklenen kurulum aralığı gelmedi')
-              header=response.read(count+1)
-          if hashlib.sha256(header).hexdigest()!='b57a777198a0f81908b07467d4126ad3cad3639f1bc90d1b9234ee21c2769f23':
-              raise ValueError('Kurulum başlığı değişti')
-          with (pathlib.Path(os.environ['RUNNER_TEMP'])/'index-only.exe').open('wb') as f:
-              f.write(header)
-              f.truncate(size)
-          PY
-          innoextract --list --silent "$RUNNER_TEMP/index-only.exe" > build/asset-index/files.txt
-          grep -Fqi 'app/istanbul.exe' build/asset-index/files.txt
+      - name: Doğrulanmış kurulumu indir ve aç
+        run: |
+          installer="$RUNNER_TEMP/istanbulkur6_0.exe"
+          python3 scripts/fetch-installer.py "$installer"
+          echo "6fcfaaf85872fd7b88ca9eecef3d865e595ebc48a879fe9a6369812e440411c8  $installer" | sha256sum -c -
+          mkdir -p build/asset-index "$RUNNER_TEMP/ikv"
+          innoextract --silent --extract --output-dir "$RUNNER_TEMP/ikv" "$installer"
+      - name: Kaynak kayıtlarını ve istemci referanslarını incele
+        run: python3 scripts/index-assets.py "$RUNNER_TEMP/ikv" build/asset-index/assets.json
       - uses: actions/upload-artifact@v4
         with:
-          name: ikv-file-index
-          path: build/asset-index/files.txt
+          name: ikv-asset-index
+          path: build/asset-index/assets.json
+          retention-days: 14
