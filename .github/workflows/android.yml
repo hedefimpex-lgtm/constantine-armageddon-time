@@ -2,7 +2,7 @@ name: Mobil prototip
 on:
   workflow_dispatch:
   push:
-    paths: ['mobile/**', 'server/**', 'android/**', 'scripts/build-android.sh', '.github/workflows/android.yml']
+    paths: ['mobile/**', 'server/**', 'android/**', 'scripts/build-android.sh', 'tests/android-smoke.py', '.github/workflows/android.yml']
 permissions:
   contents: read
 jobs:
@@ -25,3 +25,29 @@ jobs:
           path: build/constantine-android.apk
           if-no-files-found: error
           retention-days: 14
+  device:
+    needs: android
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: constantine-android
+          path: build
+      - name: Emülatör için KVM erişimi
+        run: sudo chmod a+rw /dev/kvm
+      - name: Android 11 üzerinde çevrimdışı oyunu aç
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          target: google_apis
+          profile: pixel_2
+          disable-animations: true
+          script: python3 tests/android-smoke.py build/constantine-android.apk build/device
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-device-preview
+          path: build/device
+          if-no-files-found: error
