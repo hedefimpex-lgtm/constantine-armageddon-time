@@ -20,7 +20,9 @@ def find_label(text, timeout=50):
             for node in tree.iter("node"):
                 label=" ".join([node.get("text",""),node.get("content-desc","")]).casefold()
                 if text.casefold() in label and len(label.strip())<80:
-                    return tuple(map(int,re.findall(r"\d+",node.get("bounds",""))))
+                    bounds=tuple(map(int,re.findall(r"-?\d+",node.get("bounds",""))))
+                    if len(bounds)==4 and bounds[2]>bounds[0] and bounds[3]>bounds[1]:
+                        return bounds
         except (ET.ParseError,subprocess.SubprocessError):
             pass
         time.sleep(1)
