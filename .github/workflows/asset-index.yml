@@ -2,7 +2,7 @@ name: Harita ve karakter incelemesi
 on:
   workflow_dispatch:
   push:
-    paths: ['.github/workflows/asset-index.yml', 'scripts/index-assets.py', 'scripts/probe-zone-object.py']
+    paths: ['.github/workflows/asset-index.yml', 'scripts/index-assets.py', 'scripts/probe-zone-object.py', 'scripts/original_assets.py', 'scripts/check-original-export.py']
 permissions:
   contents: read
 jobs:
@@ -26,7 +26,10 @@ jobs:
         run: |
           python3 scripts/index-assets.py "$RUNNER_TEMP/ikv" build/asset-index/assets.json
           python3 scripts/probe-zone-object.py "$RUNNER_TEMP/ikv" build/asset-index/zone-object.json
+      - name: Orijinal arazi ve arşiv üyesi dışa aktarımını doğrula
+        run: python3 scripts/check-original-export.py "$RUNNER_TEMP/ikv/app/base" build/asset-index/export.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ikv-asset-index
           path: build/asset-index/*.json
