@@ -1,0 +1,64 @@
+name: REA başlık ve yardımcı kontrolü
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/pe-header.yml']
+permissions:
+  contents: read
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [installer-prefix, helper]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --prefix "$RUNNER_TEMP/rea" --omit=dev --no-audit --no-fund rea-agents@6.8.0
+      - name: Resmî örneği al ve REA içe aktarımlarını kaydet
+        env:
+          SAMPLE: ${{ matrix.name }}
+        run: |
+          mkdir -p build/rea
+          python3 - <<'PY'
+          import os, urllib.request, pathlib
+          prefix=os.environ['SAMPLE']=='installer-prefix'
+          file='istanbulkur6_0.exe' if prefix else 'IKVDownloader.exe'
+          limit=8*1024*1024
+          req=urllib.request.Request('https://download.istanbuloyun.com/'+file,
+                                     headers={'Range':f'bytes=0-{limit-1}'} if prefix else {})
+          with urllib.request.urlopen(req,timeout=50) as r:
+              part=r.headers.get('Content-Range','')
+              if r.status==206 and not part.startswith('bytes 0-'):
+                  raise ValueError('Beklenmeyen aralık: '+part)
+              data=r.read(limit if prefix else limit+1)
+              if not prefix and (r.status!=200 or len(data)>limit):
+                  raise ValueError('İndirme yardımcısı bütçeyi aşıyor veya eksik')
+              if prefix and len(data)!=limit:
+                  raise ValueError('Kurulum örneği eksik')
+              pathlib.Path(os.environ['RUNNER_TEMP'],file).write_bytes(data)
+              print('HTTP',r.status,'Content-Range',part,'örnek bayt',len(data))
+          PY
+          rea="$RUNNER_TEMP/rea/node_modules/.bin/rea"
+          if [ "$SAMPLE" = installer-prefix ]; then
+            python3 scripts/inspect-installer.py "$RUNNER_TEMP/istanbulkur6_0.exe" build/rea/installer-prefix.json --rea "$rea"
+            python3 - <<'PY'
+          import json, pathlib
+          p=pathlib.Path('build/rea/installer-prefix.json')
+          data=json.loads(p.read_text())
+          data['input_scope']='first 8 MiB only'
+          for key in ('bytes','sha256','trailing_bytes'):
+              data['sample_'+key]=data.pop(key)
+          p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+          PY
+          else
+            python3 scripts/inspect-installer.py "$RUNNER_TEMP/IKVDownloader.exe" build/rea/helper.json --rea "$rea"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rea-${{ matrix.name }}
+          path: build/rea/*.json

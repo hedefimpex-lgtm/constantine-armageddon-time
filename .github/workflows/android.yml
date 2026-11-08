@@ -1,5 +1,8 @@
 name: Mobil prototip
-on: [push, workflow_dispatch]
+on:
+  workflow_dispatch:
+  push:
+    paths: ['mobile/**', 'server/**', 'android/**', 'scripts/build-android.sh', '.github/workflows/android.yml']
 permissions:
   contents: read
 jobs:
