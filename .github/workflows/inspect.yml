@@ -2,29 +2,33 @@ name: REA kurulum incelemesi
 on:
   workflow_dispatch:
   push:
-    paths: ['scripts/inspect-installer.py', '.github/workflows/inspect.yml']
+    paths: ['scripts/inspect-installer.py', 'scripts/fetch-installer.py', 'scripts/inspect-payload.py', '.github/workflows/inspect.yml']
 permissions:
   contents: read
 jobs:
   inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: REA 6.8.0
-        run: npm install --prefix "$RUNNER_TEMP/rea" --omit=dev --no-audit --no-fund rea-agents@6.8.0
-      - name: Yayımcının tek parça kurulumunu incele
+      - name: REA ve kurulum okuyucusu
         run: |
-          target="$RUNNER_TEMP/istanbulkur6_0.exe"
-          curl --fail --show-error --silent --location --proto '=https' --retry 2 --connect-timeout 15 --max-time 600 \
-            'https://download.istanbuloyun.com/istanbulkur6_0.exe' --output "$target"
-          python3 scripts/inspect-installer.py "$target" build/rea/installer.json --rea "$RUNNER_TEMP/rea/node_modules/.bin/rea"
+          npm install --prefix "$RUNNER_TEMP/rea" --omit=dev --no-audit --no-fund rea-agents@6.8.0
+          sudo apt-get -qy update
+          sudo apt-get -qy install innoextract
+      - name: Resmî kurulumun tüm baytlarını al
+        run: python3 scripts/fetch-installer.py "$RUNNER_TEMP/istanbulkur6_0.exe"
+      - name: Kurulum başlığını REA ile incele
+        run: python3 scripts/inspect-installer.py "$RUNNER_TEMP/istanbulkur6_0.exe" build/rea/installer.json --rea "$RUNNER_TEMP/rea/node_modules/.bin/rea"
+      - name: Oyun dosyalarını çalıştırmadan incele
+        run: python3 scripts/inspect-payload.py "$RUNNER_TEMP/istanbulkur6_0.exe" "$RUNNER_TEMP/rea/node_modules/.bin/rea" build/rea/payload.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: rea-installer-report
-          path: build/rea/installer.json
+          path: build/rea/*.json
           if-no-files-found: error
           retention-days: 30

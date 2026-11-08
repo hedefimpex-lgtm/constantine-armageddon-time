@@ -1,0 +1,21 @@
+name: VPS oyun sunucusu testi
+on:
+  workflow_dispatch:
+  push:
+    paths: ['compose.yaml', 'deploy/**', 'server/**', '.github/workflows/server.yml']
+permissions:
+  contents: read
+jobs:
+  compose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sunucuyu başlat ve yerel sağlık uç noktasını doğrula
+        run: |
+          docker compose up --build --detach --wait --wait-timeout 90
+          curl --fail --silent http://127.0.0.1:8787/health | jq -e '.ok == true'
+          curl --fail --silent --request POST http://127.0.0.1:8787/api/session | jq -e '.players | length == 1'
+      - name: Test hizmetini kapat
+        if: always()
+        run: docker compose down
